@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset='UTF-8'>
+    <title>登录 - Portal</title>
+</head>
+<body>
+    <form method='POST'>
+        <label for='username'><input type='text' id='username' name='username' placeholder='Username'></label>
+        <label for='password'><input type='password' id='password' name='password' placeholder='Password'></label>
+        <button type='submit'>登录</button>
+    </form>
+    <script>
+        document.getElementById('form').action = window.location.href;
+    </script>
+</body>
+</html>
