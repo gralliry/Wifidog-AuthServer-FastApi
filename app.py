@@ -74,12 +74,14 @@ async def login_get(
         gw_address: str = Query(alias="gw_address"),
         gw_port: str = Query(alias="gw_port"),
         gw_id: str = Query(alias="gw_id"),
+        ip: str = Query(alias="ip"),
         mac: str = Query(alias="mac"),
         url: str = Query(alias="url"),
         ):
     request.session['gw_address'] = gw_address
     request.session['gw_port'] = gw_port
     request.session['gw_id'] = gw_id
+    request.session['ip'] = ip
     request.session['mac'] = mac
     request.session['url'] = url
     return templates.TemplateResponse("login.html", {"request": request})
@@ -106,20 +108,18 @@ async def login_post(
         return JSONResponse(content={"status": "fail", "message": "Password Wrong!"})
     # 更新用户信息
     token = str(uuid.uuid4())
-    mac = request.session.get("mac", None)
     gw_address = request.session.get("gw_address", None)
     gw_port = request.session.get("gw_port", None)
-    if mac is None or gw_address is None or gw_port is None:
+    if gw_address is None or gw_port is None:
         cursor.close()
         return JSONResponse(content={"status": "fail", "message": "Cookies missing!"})
     cursor.execute(
-        'UPDATE info SET mac = ?, token = ? WHERE username = ? and password = ?',
-        (mac, token, username, password)
+        'UPDATE info SET token = ? WHERE username = ? and password = ?',
+        (token, username, password)
     )
     cursor.close()
     # 成功重定向
-    return RedirectResponse(url=f"http://{gw_address}:{gw_port}/wifidog/auth?token={token}",
-                            status_code=302)
+    return RedirectResponse(url=f"http://{gw_address}:{gw_port}/wifidog/auth?token={token}", status_code=302)
 
 
 # 面向user
@@ -146,12 +146,14 @@ async def message(
 
 # 面向Wifidog
 @app.get(f"{Path}{PingScriptPathFragment}"[:-1])
-async def ping(gw_id: str = Query(alias="gw_id"),
-               sys_uptime: str = Query(alias="sys.uptime"),
-               sys_memfree: str = Query(alias="sys.memfree"),
-               sys_load: str = Query(alias="sys.load"),
-               wifidog_uptime: str = Query(alias="wifidog.uptime"),
-               ):
+async def ping(
+        gw_id: str = Query(alias="gw_id"),
+        sys_uptime: str = Query(alias="sys_uptime"),
+        sys_memfree: str = Query(alias="sys_memfree"),
+        sys_load: str = Query(alias="sys_load"),
+        wifidog_uptime: str = Query(alias="wifidog_uptime"),
+        ):
+    # GET /wifidog/ping/?gw_id=64644ADFE3CE&sys_uptime=164&sys_memfree=26132&sys_load=0.30&wifidog_uptime=172
     print({
         "gw_id": gw_id,
         "sys_uptime": sys_uptime,
@@ -169,13 +171,13 @@ async def auth(stage: str = Query(alias="stage"),
                mac: str = Query(alias="mac"),
                token: str = Query(alias="token"),
                incoming: float = Query(alias="incoming"),
-               outcoming: float = Query(alias="outcoming"),
+               outgoing: float = Query(alias="outgoing"),
                gw_id: str = Query(alias="gw_id"),
                ):
     cursor = conn.cursor()
     cursor.execute(
-        'SELECT username FROM info where mac = ? and token = ?',
-        (mac, token)
+        'SELECT 1 FROM info where token = ?',
+        (token,)
     )
     conn.commit()
     result = cursor.fetchone()
@@ -183,8 +185,8 @@ async def auth(stage: str = Query(alias="stage"),
         conn.close()
         return "Auth: 0"
     cursor.execute(
-        'UPDATE info SET ip = ?, incoming = ?, outcoming = ? WHERE mac = ? and token = ?',
-        (ip, incoming, outcoming, mac, token)
+        'UPDATE info SET ip = ?, mac = ?, incoming = ?, outgoing = ? WHERE token = ?',
+        (ip, mac, incoming, outgoing, token)
     )
     conn.commit()
     conn.close()
