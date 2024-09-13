@@ -154,13 +154,13 @@ async def ping(
         wifidog_uptime: str = Query(alias="wifidog_uptime"),
         ):
     # GET /wifidog/ping/?gw_id=64644ADFE3CE&sys_uptime=164&sys_memfree=26132&sys_load=0.30&wifidog_uptime=172
-    print({
-        "gw_id": gw_id,
-        "sys_uptime": sys_uptime,
-        "sys_memfree": sys_memfree,
-        "sys_load": sys_load,
-        "wifidog_uptime": wifidog_uptime,
-    })
+    # print({
+    #     "gw_id": gw_id,
+    #     "sys_uptime": sys_uptime,
+    #     "sys_memfree": sys_memfree,
+    #     "sys_load": sys_load,
+    #     "wifidog_uptime": wifidog_uptime,
+    # })
     return "Pong"
 
 
@@ -182,12 +182,12 @@ async def auth(stage: str = Query(alias="stage"),
     conn.commit()
     result = cursor.fetchone()
     if result is None:
-        conn.close()
+        cursor.close()
         return "Auth: 0"
     cursor.execute(
         'UPDATE info SET ip = ?, mac = ?, incoming = ?, outgoing = ? WHERE token = ?',
         (ip, mac, incoming, outgoing, token)
     )
     conn.commit()
-    conn.close()
+    cursor.close()
     return "Auth: 1"
