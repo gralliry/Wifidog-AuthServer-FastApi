@@ -49,7 +49,7 @@ MsgScriptPathFragment = "gw_message.php?"
 PingScriptPathFragment = "ping/?"
 AuthScriptPathFragment = "auth/?"
 
-GWAddress = "10.10.10.1"
+GWAddress = "10.0.0.1"
 GWPort = "2060"
 GWId = "64644ADFE3CE"
 
