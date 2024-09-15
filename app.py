@@ -7,11 +7,8 @@ import uuid
 from fastapi import FastAPI, Request, Form, Query
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI()
-# 添加 SessionMiddleware，设置 secret_key
-app.add_middleware(SessionMiddleware, secret_key="your-secret-key")
 templates = Jinja2Templates(directory="pages")
 
 # 连接到SQLite数据库，如果数据库文件不存在，将会创建它
