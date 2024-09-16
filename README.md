@@ -7,8 +7,8 @@
 ## 使用
 
 ```shell
-git clone https://github.com/gralliry/Wifidog-Server-FastApi.git
-cd Wifidog-Server-FastApi
+git clone https://github.com/gralliry/Wifidog-AuthServer-FastApi.git
+cd Wifidog-AuthServer-FastApi
 pip install -r requirements.txt
 python run.py
 # or `python run.py --port {yourport}`
